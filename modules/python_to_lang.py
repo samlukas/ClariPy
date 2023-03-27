@@ -8,7 +8,10 @@ def str_module(self) -> str:
     str_so_far = ''
 
     for obj in self.body:
-        str_so_far += (obj.__str__() + ';\n')
+        if isinstance(obj, ast.If) or isinstance(obj, ast.While):
+            str_so_far += (obj.__str__() + '\n')
+        else:
+            str_so_far += (obj.__str__() + ';\n')
 
     return str_so_far
 
@@ -96,6 +99,48 @@ def str_sub(self) -> str:
 
 
 ast.Sub.__str__ = str_sub
+
+
+def str_if(self) -> str:
+    """Return the string representation of a ast.If node
+    """
+    str_so_far = f'If ({self.test}) {{\n'
+
+    for statement in self.body:
+        str_so_far += f'\t{statement};\n'
+
+    str_so_far += "}\n"
+
+    if self.orelse:
+        if isinstance(self.orelse[0], ast.If):
+            str_so_far += f"Else {self.orelse[0]}"
+        else:
+            str_so_far += 'Else {\n'
+            for statement in self.orelse:
+                str_so_far += f'\t{statement};\n'
+            str_so_far += "}"
+
+    return str_so_far
+
+
+ast.If.__str__ = str_if
+
+
+def str_while(self) -> str:
+    """Return the string representation of a ast.While node
+    """
+    str_so_far = f'While ({self.test}) {{\n'
+
+    for statement in self.body:
+        str_so_far += f'\t{statement};\n'
+
+    str_so_far += "}\n"
+
+    return str_so_far
+
+
+ast.While.__str__ = str_while
+
 
 if __name__ == '__main__':
     with open("test_program.py") as f:
