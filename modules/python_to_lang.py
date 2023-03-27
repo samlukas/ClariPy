@@ -101,7 +101,6 @@ def str_sub(self) -> str:
 ast.Sub.__str__ = str_sub
 
 
-<<<<<<< Updated upstream
 def str_if(self) -> str:
     """Return the string representation of a ast.If node
     """
@@ -141,7 +140,8 @@ def str_while(self) -> str:
 
 
 ast.While.__str__ = str_while
-=======
+
+
 def str_eq(self) -> str:
     """Return the string representation of a ast.Eq node
     """
@@ -195,13 +195,28 @@ ast.Gt.__str__ = str_gt
 def str_gte(self) -> str:
     """Return the string representation  of the ast.GtE node
     """
-    
+
     return 'is greater than or equal to'
 
 
 ast.GtE.__str__ = str_gte
->>>>>>> Stashed changes
 
+
+def str_list(self) -> str:
+    """Return the string representation of a ast.List
+    """
+
+    str_so_far = "["
+
+    for elem in self.elts:
+        str_so_far += f'{elem}, '
+
+    str_so_far = str_so_far[0:-2] + "]"
+
+    return str_so_far
+
+
+ast.List.__str__ = str_list
 
 if __name__ == '__main__':
     with open("test_program.py") as f:
