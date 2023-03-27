@@ -101,6 +101,7 @@ def str_sub(self) -> str:
 ast.Sub.__str__ = str_sub
 
 
+<<<<<<< Updated upstream
 def str_if(self) -> str:
     """Return the string representation of a ast.If node
     """
@@ -140,6 +141,66 @@ def str_while(self) -> str:
 
 
 ast.While.__str__ = str_while
+=======
+def str_eq(self) -> str:
+    """Return the string representation of a ast.Eq node
+    """
+
+    return 'is equal to'
+
+
+ast.Eq.__str__ = str_eq
+
+
+def str_neq(self) -> str:
+    """Return the string representation of the ast.NotEq node
+    """
+
+    return 'is not equal to'
+
+
+ast.NotEq.__str__ = str_neq
+
+
+def str_lt(self) -> str:
+    """Return the string representation of the ast.Lt node
+    """
+
+    return 'is less than'
+
+
+ast.Lt.__str__ = str_lt
+
+
+def str_lte(self) -> str:
+    """Return the string representation of the ast.LtE node
+    """
+
+    return 'is less than or equal to'
+
+
+ast.LtE.__str__ = str_lte
+
+
+def str_gt(self) -> str:
+    """Return the string representation of the ast.Gt node
+    """
+
+    return 'is greater than'
+
+
+ast.Gt.__str__ = str_gt
+
+
+def str_gte(self) -> str:
+    """Return the string representation  of the ast.GtE node
+    """
+    
+    return 'is greater than or equal to'
+
+
+ast.GtE.__str__ = str_gte
+>>>>>>> Stashed changes
 
 
 if __name__ == '__main__':
