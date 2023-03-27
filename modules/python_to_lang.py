@@ -19,6 +19,26 @@ def str_module(self) -> str:
 ast.Module.__str__ = str_module
 
 
+def str_compare(self) -> str:
+    """Return the string representation of an ast.Compare node
+    """
+
+    return f'{self.left.__str__()} {self.ops[0].__str__()} {self.comparators[0].__str__()}'
+
+
+ast.Compare.__str__ = str_compare
+
+
+def str_expr(self) -> str:
+    """Return the string representation of an ast.Expr node
+    """
+
+    return self.value.__str__()
+
+
+ast.Expr.__str__ = str_expr
+
+
 def str_assign(self) -> str:
     """Return the string representation of an ast.Assign node
 
@@ -140,6 +160,7 @@ def str_while(self) -> str:
 
 
 ast.While.__str__ = str_while
+
 
 
 def str_eq(self) -> str:
