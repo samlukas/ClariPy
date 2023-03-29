@@ -64,6 +64,8 @@ ast.Name.__str__ = str_name
 def str_constant(self) -> str:
     """Return the string representation of a ast.Constant node
     """
+    if isinstance(self.value, str):
+        return f'\"{self.value}\"'
 
     return f'{self.value}'
 
