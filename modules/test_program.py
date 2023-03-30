@@ -21,8 +21,6 @@ if True:
 else:
     x = 4
 
-return 4
-
 def f(a: str, b: int) -> str:
     x = a * b
 
