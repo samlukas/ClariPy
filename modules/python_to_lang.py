@@ -164,7 +164,6 @@ def str_while(self) -> str:
 ast.While.__str__ = str_while
 
 
-
 def str_eq(self) -> str:
     """Return the string representation of a ast.Eq node
     """
@@ -240,6 +239,122 @@ def str_list(self) -> str:
 
 
 ast.List.__str__ = str_list
+
+
+def str_while(self) -> str:
+    """Return the string representation of an ast.While node
+    """
+    str_so_far = f'While ({self.test}) {{\n'
+
+    for statement in self.body:
+        str_so_far += f'\t{statement};\n'
+
+    str_so_far += "}\n"
+
+    return str_so_far
+
+
+ast.While.__str__ = str_while
+
+
+def str_is(self) -> str:
+    """Return the string representation of an ast.Is node
+    """
+
+    return 'is'
+
+
+ast.Is.__str__ = str_is
+
+
+def str_isnot(self) -> str:
+    """Return the string representation of an ast.IsNot node
+    """
+
+    return 'is not'
+
+
+ast.IsNot.__str__ = str_isnot
+
+
+def str_in(self) -> str:
+    """Return the string representation of an ast.In node
+    """
+
+    return 'is in'
+
+
+ast.In.__str__ = str_in
+
+
+def str_notin(self) -> str:
+    """Return the string representation of an ast.NotIn node
+    """
+
+    return 'is not in'
+
+
+ast.NotIn.__str__ = str_notin
+
+
+def str_FunctionDef(self) -> str:
+    """Return the string representation of an ast.FunctionDef node
+    """
+
+    str_so_far = f'Define function {self.name} with {self.args} -> {self.returns.__str__()}\n'
+
+    for node in self.body:
+        str_so_far += f'\t{node.__str__()};\n'
+
+    return str_so_far
+
+
+ast.FunctionDef.__str__ = str_FunctionDef
+
+
+def str_name(self) -> str:
+    """Return the string representation of an ast.Name node
+    """
+
+    return f'{self.id}'
+
+ast.Name.__str__ = str_name
+
+
+def str_arg(self) -> str:
+    """Return the string representation of the ast.arg node
+    """
+
+    return f'{self.annotation.__str__()} {self.arg}'
+
+
+ast.arg.__str__ = str_arg
+
+
+def str_arguments(self) -> str:
+    """Return the string representation of the ast.arguments node
+    """
+
+    args_lst = []
+
+    for arg in self.args:
+        args_lst.append(arg.__str__())
+
+    return ', '.join(args_lst)
+
+
+ast.arguments.__str__ = str_arguments
+
+
+def str_return(self) -> str:
+    """Return the string representation of the ast.Return node
+    """
+
+    return f'return {self.value.__str__()}'
+
+
+ast.Return.__str__ = str_return
+
 
 if __name__ == '__main__':
     with open("test_program.py") as f:
