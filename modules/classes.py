@@ -30,6 +30,10 @@ class Num(Expr):
 
         return self.n
 
+    def __str__(self) -> str:
+
+        return f"Num({self.n})"
+
 
 class Str(Expr):
     """String literal
@@ -46,6 +50,9 @@ class Str(Expr):
         """Evaluate the given string literal"""
 
         return self.s
+
+    def __str__(self) -> str:
+        return f"Str(\"{self.s}\")"
 
 
 class BinOp(Expr):
@@ -69,7 +76,8 @@ class BinOp(Expr):
         left_val = self.left.evaluate(env)
         right_val = self.right.evaluate(env)
 
-        if self.op == '+' and ((isinstance(left_val, str) and isinstance(right_val, str)) or (isinstance(left_val, int | float) and isinstance(right_val, int | float))):
+        if self.op == '+' and ((isinstance(left_val, str) and isinstance(right_val, str)) or
+                               (isinstance(left_val, int | float) and isinstance(right_val, int | float))):
             return left_val + right_val
         elif self.op == '*' and not (isinstance(left_val, str) and isinstance(right_val, str)):
             return left_val * right_val
@@ -82,7 +90,7 @@ class BinOp(Expr):
         elif self.op == '%' and (isinstance(left_val, int | float) and isinstance(right_val, int | float)):
             return left_val % right_val
         else:
-            raise ValueError(f'Invalid operator {self.op}') 
+            raise ValueError(f'Invalid operator {self.op}')
 
 class Name(Expr):
     """Variable expression
@@ -102,6 +110,9 @@ class Name(Expr):
             return env[self.id]
         else:
             raise NameError
+
+    def __str__(self) -> str:
+        return f"Name({self.id})"
 
 
 class Assign(Expr):
@@ -140,13 +151,3 @@ class Module:
         env = {}
         for statement in self.body:
             statement.evaluate(env)
-
-
-
-        
-
-
-
-
-
-

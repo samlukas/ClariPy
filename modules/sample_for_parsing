@@ -1,9 +1,9 @@
-Define x as 2;
-Define y as 6;
+Define x as -2;
+Define y as 6.5;
 Define z as ((x * ((7 + y) / 10)) - 1);
 x is greater than y;
 
 
-"Hello, world!"
+"Hello, world!";
 
-'Hello, world!'
+'Hello, world!';
