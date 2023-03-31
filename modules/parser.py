@@ -22,6 +22,7 @@ variable_format = re.compile(r"\w+")
 int_format = re.compile(r"[-+]?[0-9]+")
 float_format = re.compile(r"[-+]?[0-9]*\.[0-9]+")
 KEYWORDS = {'Define', 'If', 'Else', 'as'}
+PRECEDENCES = {'*': 1, '/': 1, '+': 0, '-': 0}
 
 
 def tokenize(file_name: str) -> list[str]:
@@ -56,3 +57,45 @@ def lexer(tokens: list) -> None:
         elif re.fullmatch(variable_format, tokens[i]):
             tokens[i] = classes.Name(tokens[i])
 
+
+def shunting_yard(tokens: list) -> list:
+    """Return the tokens ordered in Reverse Polish Notation
+    """
+    operators = '+-*/()'  # While technically parentheses are not operators, this simplifies the checks
+
+    operator_stack = []
+    output = []
+
+    for i in range(0, len(tokens)):
+        if tokens[i] not in operators:
+            output.append(tokens[i])
+        elif tokens[i] == '(':
+            operator_stack.append(tokens[i])
+        elif tokens[i] == ')':
+            curr = operator_stack.pop()
+            while curr != '(':
+                output.append(curr)
+                curr = operator_stack.pop()
+        elif tokens[i] in operators:
+            # UNOPTIMIZED VERSION (Restating the rules directly)
+            # if not operator_stack or operator_stack[len(operator_stack) - 1] == ')':
+            #     operator_stack.append(tokens[i])
+            # elif PRECEDENCES[tokens[i]] > PRECEDENCES[operator_stack[len(operator_stack) - 1]]:
+            #     operator_stack.append(tokens[i])
+            # elif PRECEDENCES[tokens[i]] <= PRECEDENCES[operator_stack[len(operator_stack) - 1]]:
+            #     output.append(operator_stack.pop())
+            #     while (operator_stack and PRECEDENCES[operator_stack[len(operator_stack) - 1]] >=
+            #       PRECEDENCES[tokens[i]]):
+            #         output.append(operator_stack.pop())
+            #     operator_stack.append(tokens[i])
+
+            # OPTIMIZED VERSION (Might not work as well)
+            while (operator_stack and operator_stack[len(operator_stack) - 1] != '(' and
+                   PRECEDENCES[tokens[i]] <= PRECEDENCES[operator_stack[len(operator_stack) - 1]]):
+                output.append(operator_stack.pop())
+
+            operator_stack.append(tokens[i])
+
+    while operator_stack:
+        output.append(operator_stack.pop())
+    return output
