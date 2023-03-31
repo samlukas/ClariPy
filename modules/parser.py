@@ -56,7 +56,7 @@ def shunting_yard(tokens: list) -> list:
     output = []
 
     for i in range(0, len(tokens)):
-        if tokens[i] not in operators:
+        if not isinstance(tokens[i], str) or tokens[i] not in operators:
             output.append(tokens[i])
         elif tokens[i] == '(':
             operator_stack.append(tokens[i])
