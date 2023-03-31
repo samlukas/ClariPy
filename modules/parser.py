@@ -1,3 +1,14 @@
+"""
+CSC111 Winter 2023 Project: ClariPy
+
+This module contains code that converts a given file and its contents into tokens that are 
+easily parsable. This allows us to more easily work with these tokens and the code written 
+to convert between pseudo code and python code
+
+Also implemented is code that allows us to convert these tokens into their corresponding AST 
+nodes
+"""
+
 import re
 import classes
 
