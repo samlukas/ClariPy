@@ -1,3 +1,14 @@
+"""
+CSC111 Winter 2023 Project: ClariPy
+
+This module contains code that could be used to represent a various parts that are
+commonly found in python program.
+
+This includes classes such as Statements, Expresisons, Num literals, String literals,
+Binary operations, and Assignment statements
+"""
+
+
 from typing import Any
 
 class Statement:

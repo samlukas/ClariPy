@@ -1,3 +1,16 @@
+"""
+CSC111 Winter 2023 Project: ClariPy
+
+This module contains various methods that allow us to represent various AST nodes
+as strings. 
+
+It breaks down various componenets of different expressions in order to represent an
+entire statement as a string. We format the resulting string using semicolons
+and curly brackets so that we can more easily parse these strings back into python 
+code.
+"""
+
+
 import ast
 
 

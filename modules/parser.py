@@ -23,6 +23,7 @@ int_format = re.compile(r"[-+]?[0-9]+")
 float_format = re.compile(r"[-+]?[0-9]*\.[0-9]+")
 KEYWORDS = {'Define', 'If', 'Else', 'as'}
 PRECEDENCES = {'*': 1, '/': 1, '+': 0, '-': 0}
+OPERATORS = {'*', '/', '+', '-'}
 
 
 def tokenize(file_name: str) -> list[str]:
@@ -99,3 +100,24 @@ def shunting_yard(tokens: list) -> list:
     while operator_stack:
         output.append(operator_stack.pop())
     return output
+
+
+def polish_to_ast(polish: list) -> classes.BinOp:
+    """
+    Converts reverse polish notation into ast.BinOp class
+
+    Preconditions:
+        - all(item in OPERATORS for item in polish if isinstance(item, str))
+    """
+
+    stack = []
+
+    for item in polish:
+        if isinstance(item, classes.Expr):
+            stack.append(item)
+        else:
+            val1, val2 = stack.pop(), stack.pop()
+            if item in OPERATORS:
+                stack.append(classes.BinOp(val1, item, val2))
+
+    return stack[0]
