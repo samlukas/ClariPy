@@ -1,11 +1,11 @@
 """
 CSC111 Winter 2023 Project: ClariPy
 
-This module contains code that converts a given file and its contents into tokens that are 
-easily parsable. This allows us to more easily work with these tokens and the code written 
+This module contains code that converts a given file and its contents into tokens that are
+easily parsable. This allows us to more easily work with these tokens and the code written
 to convert between pseudo code and python code
 
-Also implemented is code that allows us to convert these tokens into their corresponding AST 
+Also implemented is code that allows us to convert these tokens into their corresponding AST
 nodes
 """
 
@@ -21,8 +21,9 @@ string_format = re.compile(r"[\"\'][ -~]+[\"\']")
 variable_format = re.compile(r"\w+")
 int_format = re.compile(r"[-+]?[0-9]+")
 float_format = re.compile(r"[-+]?[0-9]*\.[0-9]+")
-KEYWORDS = {'Define', 'If', 'Else', 'as'}
-PRECEDENCES = {'*': 1, '/': 1, '+': 0, '-': 0}
+KEYWORDS = {'Define', 'If', 'Else', 'as', 'and', 'or'}
+PRECEDENCES = {'*': 1, '/': 1, '+': 0, '-': 0, '>=': -1, '>': -1, '<=': -1, '<': -1, '==': -1, '!=': -1, 'and': -2,
+               'or': -2}
 OPERATORS = {'*', '/', '+', '-'}
 
 
@@ -62,7 +63,7 @@ def lexer(tokens: list) -> None:
 def shunting_yard(tokens: list) -> list:
     """Return the tokens ordered in Reverse Polish Notation
     """
-    operators = '+-*/()'  # While technically parentheses are not operators, this simplifies the checks
+    operators = '+-*/>=<==!=()andor'  # While technically parentheses are not operators, this simplifies the checks
 
     operator_stack = []
     output = []
