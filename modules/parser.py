@@ -127,37 +127,29 @@ def polish_to_ast(polish: list) -> classes.BinOp | classes.BoolOp:
     return stack[0]
 
 
-def matching_parenthesis(lst: list) -> int:
+def matching_parenthesis(tokens: list, index: int,  p_type: str = '(') -> int:
     """
-    Returns the index of the very last right parenthesis, raise SyntaxError if there is a
-    parethesis that does not have a matching pair parenthesis
+    Return the index of the matching parenthesis to the parenthesis at the given index
+    If the tokens feature unmatched parentheses, raise SyntaxError
+
+    Preconditions:
+        - tokens[index] == p_type
     """
+    if p_type == '{':
+        closing = '}'
+    elif p_type == '[':
+        closing = ']'
+    else:
+        closing = ')'
 
     stack = []
-    last_index = 0
 
-    if lst[1] != '(':
-        raise SyntaxError
-
-    for i in range(len(lst)):
-        if lst[i] == '(':
-            stack.append(lst[i])
-        elif lst[i] == ')':
+    for i in range(index + 1, len(tokens)):
+        if tokens[i] == p_type:
+            stack.append(tokens[i])
+        elif tokens[i] == closing:
+            if not stack:
+                return i
             stack.pop()
-            last_index = i
 
-    if len(stack) != 0:
-        raise SyntaxError
-    else:
-        return last_index
-
-
-def if_to_ast(tokens: list) -> classes.BoolOp:
-    """Evaluates the conditional portion of an if statement, turning it into a BoolOp object
-    """
-
-    last_index = matching_parenthesis(tokens)
-
-    polish_notation = shunting_yard(tokens[2:last_index])
-
-    return polish_to_ast(polish_notation)
+    raise SyntaxError  # Unmatched parenthesis
