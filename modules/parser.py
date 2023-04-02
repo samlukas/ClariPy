@@ -24,7 +24,8 @@ float_format = re.compile(r"[-+]?[0-9]*\.[0-9]+")
 KEYWORDS = {'Define', 'If', 'Else', 'as', 'and', 'or'}
 PRECEDENCES = {'*': 1, '/': 1, '+': 0, '-': 0, '>=': -1, '>': -1, '<=': -1, '<': -1, '==': -1, '!=': -1, 'and': -2,
                'or': -2}
-OPERATORS = {'*', '/', '+', '-'}
+A_OPERATORS = {'*', '/', '+', '-'}
+B_OPERATORS = {'and', 'or', '<', '<=', '>', '>=', '!=', '=='}
 
 
 def tokenize(file_name: str) -> list[str]:
@@ -103,12 +104,12 @@ def shunting_yard(tokens: list) -> list:
     return output
 
 
-def polish_to_ast(polish: list) -> classes.BinOp:
+def polish_to_ast(polish: list) -> classes.BinOp | classes.BoolOp:
     """
-    Converts reverse polish notation into ast.BinOp class
+    Converts reverse polish notation into ast.BinOp or ast.BoolOp class
 
     Preconditions:
-        - all(item in OPERATORS for item in polish if isinstance(item, str))
+        - all([(item in A_OPERATORS) or (item in B_OPERATORS) for item in polish if isinstance(item, str)])
     """
 
     stack = []
@@ -118,7 +119,9 @@ def polish_to_ast(polish: list) -> classes.BinOp:
             stack.append(item)
         else:
             val1, val2 = stack.pop(), stack.pop()
-            if item in OPERATORS:
+            if item in A_OPERATORS:
                 stack.append(classes.BinOp(val1, item, val2))
+            elif item in B_OPERATORS:
+                stack.append(classes.BoolOp(item, val2, val1))
 
     return stack[0]

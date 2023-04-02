@@ -66,6 +66,67 @@ class Str(Expr):
         return f"Str(\"{self.s}\")"
 
 
+class Bool(Expr):
+    """Boolean literal
+    """
+
+    b: bool
+
+    def __init__(self, b: bool) -> None:
+        """Initialize a new string literal"""
+
+        self.b = b
+
+    def evaluate(self, env: dict[str: Any]) -> Any:
+        """Evaluate the given bool literal"""
+
+        return self.b
+
+    def __str__(self) -> str:
+        return f"Bool(\"{self.b}\)"
+
+
+class BoolOp(Expr):
+    """Represents a bool operation
+    """
+
+    op: str
+    right: Expr
+    left: Expr
+
+    def __init__(self, op: str, left: Expr, right: Expr) -> None:
+        """Initialize a new binary operation"""
+
+        self.op = op
+        self.right = right
+        self.left = left
+
+    def evaluate(self, env: dict[str: Any]) -> Any:
+        """Evaluate the given bool operation"""
+
+        right_val = self.right.evaluate(env)
+        left_val = self.left.evaluate(env)
+
+        if self.op == 'and':
+            return right_val and left_val
+        elif self.op == 'or':
+            return right_val or left_val
+        elif self.op == '<':
+            return left_val < right_val
+        elif self.op == '<=':
+            return left_val <= right_val
+        elif self.op == '>':
+            return left_val > right_val
+        elif self.op == '<=':
+            return left_val <= right_val
+        elif self.op == '==':
+            return left_val == right_val
+        elif self.op == '!=':
+            return left_val != right_val
+        else:
+            raise ValueError(f'Invalid operator {self.op}')
+
+
 class BinOp(Expr):
     """Represents a binary operation
     """
