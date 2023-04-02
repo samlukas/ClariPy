@@ -96,9 +96,9 @@ class Subscript(Expr):
     """
 
     lst: Expr
-    index: int
+    index: Expr
 
-    def __init__(self, lst: Expr, index: int) -> None:
+    def __init__(self, lst: Expr, index: Expr) -> None:
         """Initialize a new indexing operation"""
 
         self.lst = lst
@@ -107,10 +107,12 @@ class Subscript(Expr):
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate a new indexing operation"""
 
-        if self.index >= len(self.lst.evaluate(env)):
+        i = self.index.evaluate(env)
+
+        if i >= len(self.lst.evaluate(env)):
             raise IndexError
         else:
-            return self.lst.evaluate(env)[self.index]
+            return self.lst.evaluate(env)[i]
 
 
 class Bool(Expr):
