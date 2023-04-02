@@ -66,6 +66,31 @@ class Str(Expr):
         return f"Str(\"{self.s}\")"
 
 
+class List(Expr):
+    """List literal
+    """
+
+    lst: list
+
+    def __init__(self, lst: list) -> None:
+        """Initialize a new list litereal"""
+
+        self.lst = lst
+
+    def evaluate(self, env: dict[str: Any]) -> Any:
+        """Evaluate the given list literal"""
+
+        return self.lst
+
+    def __getitem__(self, i: int) -> Any:
+        """Get the item stored at a specific index in the list"""
+
+        if i >= len(self.lst):
+            raise IndexError
+        else:
+            return self.lst[i]
+    
+    
 class Bool(Expr):
     """Boolean literal
     """
