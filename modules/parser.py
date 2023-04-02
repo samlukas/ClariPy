@@ -125,3 +125,39 @@ def polish_to_ast(polish: list) -> classes.BinOp | classes.BoolOp:
                 stack.append(classes.BoolOp(item, val2, val1))
 
     return stack[0]
+
+
+def matching_parenthesis(lst: list) -> int:
+    """
+    Returns the index of the very last right parenthesis, raise SyntaxError if there is a
+    parethesis that does not have a matching pair parenthesis
+    """
+
+    stack = []
+    last_index = 0
+
+    if lst[1] != '(':
+        raise SyntaxError
+
+    for i in range(len(lst)):
+        if lst[i] == '(':
+            stack.append(lst[i])
+        elif lst[i] == ')':
+            stack.pop()
+            last_index = i
+
+    if len(stack) != 0:
+        raise SyntaxError
+    else:
+        return last_index
+
+
+def if_to_ast(tokens: list) -> classes.BoolOp:
+    """Evaluates the conditional portion of an if statement, turning it into a BoolOp object
+    """
+
+    last_index = matching_parenthesis(tokens)
+
+    polish_notation = shunting_yard(tokens[2:last_index])
+
+    return polish_to_ast(polish_notation)
