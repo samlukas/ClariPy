@@ -16,7 +16,7 @@ import classes
 TOKENIZER 
 """
 
-token_format = re.compile(r"[-+]?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}()\]\[]|=+")
+token_format = re.compile(r"[-+]?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),\]\[]|=+")
 string_format = re.compile(r"[\"\'][ -~]+[\"\']")
 variable_format = re.compile(r"\w+")
 int_format = re.compile(r"[-+]?[0-9]+")
@@ -53,10 +53,6 @@ def lexer(tokens: list) -> list:
     while i < len(tokens):
         if tokens[i] in KEYWORDS:
             tokens_so_far.append(tokens[i])
-        elif tokens[i] == '[':
-            end = matching_parenthesis(tokens, i, '[')
-            tokens_so_far.append(lexer(tokens[i + 1: end]))  # Temporary structure, not an actual AST node
-            i = end
         elif re.fullmatch(float_format, tokens[i]):
             tokens_so_far.append(classes.Num(float(tokens[i])))
         elif re.fullmatch(int_format, tokens[i]):
@@ -64,13 +60,26 @@ def lexer(tokens: list) -> list:
         elif re.fullmatch(string_format, tokens[i]):
             tokens_so_far.append(classes.Str(tokens[i][1:-1]))
         elif re.fullmatch(variable_format, tokens[i]):
-            tokens_so_far.append(classes.Name(tokens[i]))
+            if i < len(tokens) - 1 and tokens[i + 1] == '[':
+                end = matching_parenthesis(tokens, i + 1, '[')
+                inner = lexer(tokens[i + 2:end])
+                subscript = expression_to_ast(inner)  # Subscript must be a single expression
+                tokens_so_far.append(classes.Subscript(classes.Name(tokens[i]), subscript))
+                i = end
+            else:
+                tokens_so_far.append(classes.Name(tokens[i]))
         else:
             tokens_so_far.append(tokens[i])
 
         i += 1
 
     return tokens_so_far
+
+
+def expression_to_ast(tokens: list) -> classes.BinOp | classes.BoolOp:
+    """Return BinOp/BoolOp AST representation of the given expression
+    """
+    return polish_to_ast(shunting_yard(tokens))
 
 
 def shunting_yard(tokens: list) -> list:
