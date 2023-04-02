@@ -165,3 +165,31 @@ def matching_parenthesis(tokens: list, index: int,  p_type: str = '(') -> int:
             stack.pop()
 
     raise SyntaxError  # Unmatched parenthesis
+
+
+def parse_statements(tokens: list) -> list:
+    """
+    Parse the statments within the given list of tokens.
+    Convert the statements into either classes.BoolOp or classes.BinOp
+    """
+
+    structure = []
+    paren = {'{', '(', '['}
+    i = 0
+
+    while i < len(tokens):
+        if tokens[i] in paren:
+            end = matching_parenthesis(tokens, i, tokens[i])
+            rpn = shunting_yard(tokens[i + 1: end])
+            structure.append(polish_to_ast(rpn))
+
+            i = end + 1
+            
+        else:
+            structure.append(tokens[i])
+            i += 1
+
+
+    return structure
+
+    
