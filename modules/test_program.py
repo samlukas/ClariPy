@@ -28,3 +28,6 @@ def f(a: str, b: int) -> str:
 
 def g(a: int, b: int) -> list:
     return [a, b, b, a]
+
+
+test[4:6:2]

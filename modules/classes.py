@@ -89,8 +89,30 @@ class List(Expr):
             raise IndexError
         else:
             return self.lst[i]
-    
-    
+
+
+class Subscript(Expr):
+    """List indexing
+    """
+
+    lst: Expr
+    index: int
+
+    def __init__(self, lst: Expr, index: int) -> None:
+        """Initialize a new indexing operation"""
+
+        self.lst = lst
+        self.index = index
+
+    def evaluate(self, env: dict[str: Any]) -> Any:
+        """Evaluate a new indexing operation"""
+
+        if self.index >= len(self.lst.evaluate(env)):
+            raise IndexError
+        else:
+            return self.lst.evaluate(env)[self.index]
+
+
 class Bool(Expr):
     """Boolean literal
     """
@@ -230,6 +252,19 @@ class Assign(Expr):
 
         env[self.target] = self.value.evaluate(env)
 
+
+class Print(Statement):
+    """Takes in an Expression, evaluates it, and prints it"""
+
+    arg = Expr
+
+    def __init__(self, arg: Expr) -> None:
+        """Initialize a new print node"""
+        self.arg = arg
+
+    def evaluate(self, env: dict[str: Any]) -> Any:
+        """Evaluate the given argument and print it"""
+        print(self.arg.evaluate(env))
 
 class Module:
     """Class representing python program with various statements

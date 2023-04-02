@@ -254,6 +254,31 @@ def str_list(self) -> str:
 ast.List.__str__ = str_list
 
 
+def str_subscript(self) -> str:
+    """Return the string representation of a ast.Subscript node
+    """
+
+    return f'at index {self.slice} of {self.value.__str__()}'
+
+
+ast.Subscript.__str__ = str_subscript
+
+
+def str_slice(self) -> str:
+    """Return the string representation of a ast.Slice node
+    """
+
+    if self.upper is None and self.step is None:
+        return f'{self.lower.__str__()}'
+    elif self.step is None:
+        return f'{self.lower.__str__()} to {self.upper.__str__()}'
+    else:
+        return f'{self.lower.__str__()} to {self.upper.__str__()} by {self.step.__str__()}'
+
+
+ast.Slice.__str__ = str_slice
+
+
 def str_while(self) -> str:
     """Return the string representation of an ast.While node
     """
