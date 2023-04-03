@@ -254,7 +254,7 @@ class Assign(Expr):
         if isinstance(self.target, Name):
             env[self.target.id] = self.value.evaluate(env)
         else:
-            env[self.target.lst.id][self.target.index.evaluate(env)] = self.value.evaluate(env)
+            env[self.target.lst.id][self.target.index.evaluate(env)] = self.value
 
 
 class Print(Statement):
