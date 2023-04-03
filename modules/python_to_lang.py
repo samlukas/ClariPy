@@ -1,6 +1,8 @@
 """
 CSC111 Winter 2023 Project: ClariPy
 
+String Representations:
+
 This module contains various methods that allow us to represent various AST nodes
 as strings.
 
@@ -21,7 +23,7 @@ def str_module(self) -> str:
     str_so_far = ''
 
     for obj in self.body:
-        if isinstance(obj, ast.If) or isinstance(obj, ast.While):
+        if isinstance(obj, (ast.If, ast.While)):
             str_so_far += (obj.__str__() + '\n')
         else:
             str_so_far += (obj.__str__() + ';\n')
@@ -279,22 +281,6 @@ def str_slice(self) -> str:
 ast.Slice.__str__ = str_slice
 
 
-def str_while(self) -> str:
-    """Return the string representation of an ast.While node
-    """
-    str_so_far = f'While ({self.test}) {{\n'
-
-    for statement in self.body:
-        str_so_far += f'\t{statement};\n'
-
-    str_so_far += "}\n"
-
-    return str_so_far
-
-
-ast.While.__str__ = str_while
-
-
 def str_is(self) -> str:
     """Return the string representation of an ast.Is node
     """
@@ -335,7 +321,7 @@ def str_notin(self) -> str:
 ast.NotIn.__str__ = str_notin
 
 
-def str_FunctionDef(self) -> str:
+def str_function_def(self) -> str:
     """Return the string representation of an ast.FunctionDef node
     """
 
@@ -347,16 +333,7 @@ def str_FunctionDef(self) -> str:
     return str_so_far
 
 
-ast.FunctionDef.__str__ = str_FunctionDef
-
-
-def str_name(self) -> str:
-    """Return the string representation of an ast.Name node
-    """
-
-    return f'{self.id}'
-
-ast.Name.__str__ = str_name
+ast.FunctionDef.__str__ = str_function_def
 
 
 def str_arg(self) -> str:
@@ -400,3 +377,14 @@ if __name__ == '__main__':
 
     tree = ast.parse(program)
     print(tree)
+
+    import doctest
+    doctest.testmod(verbose=True)
+
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'allowed-io': ['Print.evaluate'],
+        'extra-imports': ['ast'],
+        'disable': ['abstract-method', 'syntax-error']
+    })

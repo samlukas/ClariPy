@@ -1,6 +1,8 @@
 """
 CSC111 Winter 2023 Project: ClariPy
 
+Parsing and Tokenizing:
+
 This module contains code that converts a given file and its contents into tokens that are
 easily parsable. This allows us to more easily work with these tokens and the code written
 to convert between pseudo code and python code
@@ -12,15 +14,6 @@ import re
 import classes
 
 
-"""
-TOKENIZER 
-"""
-
-token_format = re.compile(r"-?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),%\]\[]|=+")
-string_format = re.compile(r"[\"\'][ -~]+[\"\']")
-variable_format = re.compile(r"\w+")
-int_format = re.compile(r"-?[0-9]+")
-float_format = re.compile(r"-?[0-9]*\.[0-9]+")
 KEYWORDS = {'Define', 'While', 'If', 'Else', 'as', 'and', 'or', 'Print'}
 PRECEDENCES = {'*': 1, '/': 1, '%': 1, '+': 0, '-': 0, '>=': -1, '>': -1, '<=': -1, '<': -1, '==': -1, '!=': -1,
                'and': -2, 'or': -2}
@@ -41,6 +34,8 @@ def parse_module(file_name: str) -> classes.Module:
 def tokenize(file_name: str) -> list[str]:
     """Return the tokenized version of the input program
     """
+    TOKEN_FORMAT = re.compile(r"-?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),%\]\[]|=+")
+
     with open(file_name) as f:
         program = f.read()
 
@@ -51,25 +46,29 @@ def tokenize(file_name: str) -> list[str]:
     program = program.replace("is greater than", ">")
     program = program.replace("is less than", "<")
 
-    return token_format.findall(program)
+    return TOKEN_FORMAT.findall(program)
 
 
 def lexer(tokens: list) -> list:
     """Return the list of tokens, replacing tokens of leaf nodes with appropriate nodes
     """
+    STRING_FORMAT = re.compile(r"[\"\'][ -~]+[\"\']")
+    VARIABLE_FORMAT = re.compile(r"\w+")
+    INT_FORMAT = re.compile(r"-?[0-9]+")
+    FLOAT_FORMAT = re.compile(r"-?[0-9]*\.[0-9]+")
     tokens_so_far = []
     i = 0
 
     while i < len(tokens):
         if tokens[i] in KEYWORDS:
             tokens_so_far.append(tokens[i])
-        elif re.fullmatch(float_format, tokens[i]):
+        elif re.fullmatch(FLOAT_FORMAT, tokens[i]):
             tokens_so_far.append(classes.Num(float(tokens[i])))
-        elif re.fullmatch(int_format, tokens[i]):
+        elif re.fullmatch(INT_FORMAT, tokens[i]):
             tokens_so_far.append(classes.Num(int(tokens[i])))
-        elif re.fullmatch(string_format, tokens[i]):
+        elif re.fullmatch(STRING_FORMAT, tokens[i]):
             tokens_so_far.append(classes.Str(tokens[i][1:-1]))
-        elif re.fullmatch(variable_format, tokens[i]):
+        elif re.fullmatch(VARIABLE_FORMAT, tokens[i]):
             if i < len(tokens) - 1 and tokens[i + 1] == '[':
                 end = matching_parenthesis(tokens, i + 1, '[')
                 inner = lexer(tokens[i + 2:end])
@@ -100,17 +99,17 @@ def shunting_yard(tokens: list) -> list:
     operator_stack = []
     output = []
 
-    for i in range(0, len(tokens)):
-        if not isinstance(tokens[i], str) or tokens[i] not in operators:
-            output.append(tokens[i])
-        elif tokens[i] == '(':
-            operator_stack.append(tokens[i])
-        elif tokens[i] == ')':
+    for token in tokens:
+        if not isinstance(token, str) or token not in operators:
+            output.append(token)
+        elif token == '(':
+            operator_stack.append(token)
+        elif token == ')':
             curr = operator_stack.pop()
             while curr != '(':
                 output.append(curr)
                 curr = operator_stack.pop()
-        elif tokens[i] in operators:
+        elif token in operators:
             # UNOPTIMIZED VERSION (Restating the rules directly)
             # if not operator_stack or operator_stack[len(operator_stack) - 1] == ')':
             #     operator_stack.append(tokens[i])
@@ -124,18 +123,18 @@ def shunting_yard(tokens: list) -> list:
             #     operator_stack.append(tokens[i])
 
             # OPTIMIZED VERSION (Might not work as well)
-            while (operator_stack and operator_stack[len(operator_stack) - 1] != '(' and
-                   PRECEDENCES[tokens[i]] <= PRECEDENCES[operator_stack[len(operator_stack) - 1]]):
+            while (operator_stack and operator_stack[len(operator_stack) - 1] != '('
+                    and PRECEDENCES[token] <= PRECEDENCES[operator_stack[len(operator_stack) - 1]]):
                 output.append(operator_stack.pop())
 
-            operator_stack.append(tokens[i])
+            operator_stack.append(token)
 
     while operator_stack:
         output.append(operator_stack.pop())
     return output
 
 
-def polish_to_ast(polish: list) -> classes.BinOp | classes.BoolOp:
+def polish_to_ast(polish: list) -> classes.Expr:
     """
     Converts reverse polish notation into ast.BinOp or ast.BoolOp class
 
@@ -158,7 +157,7 @@ def polish_to_ast(polish: list) -> classes.BinOp | classes.BoolOp:
     return stack[0]
 
 
-def matching_parenthesis(tokens: list, index: int,  p_type: str = '(') -> int:
+def matching_parenthesis(tokens: list, index: int, p_type: str = '(') -> int:
     """
     Return the index of the matching parenthesis to the parenthesis at the given index
     If the tokens feature unmatched parentheses, raise SyntaxError
@@ -252,7 +251,6 @@ def parse_statements(tokens: list) -> list:
     """
 
     statements = []
-    paren = {'{', '(', '['}
     i = 0
 
     while i < len(tokens):
@@ -278,7 +276,7 @@ def parse_statements(tokens: list) -> list:
 
         elif tokens[i] == 'Define':
             i += 1
-            if isinstance(tokens[i], classes.Name) or isinstance(tokens[i], classes.Subscript):
+            if isinstance(tokens[i], (classes.Name, classes.Subscript)):
                 target = tokens[i]
                 i += 1
                 if tokens[i] == 'as':
@@ -309,3 +307,16 @@ def parse_statements(tokens: list) -> list:
             i += 1
 
     return statements
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod(verbose=True)
+
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'allowed-io': ['Print.evaluate', 'tokenize'],
+        'extra-imports': ['classes', 're'],
+        'disable': ['abstract-method', 'syntax-error']
+    })

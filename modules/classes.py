@@ -1,6 +1,8 @@
 """
 CSC111 Winter 2023 Project: ClariPy
 
+Classes and Methods:
+
 This module contains code that could be used to represent a various parts that are
 commonly found in python program.
 
@@ -8,17 +10,17 @@ This includes classes such as Statements, Expresisons, Num literals, String lite
 Binary operations, and Assignment statements
 """
 
-
 from typing import Any
+
 
 class Statement:
     """An abstract class representing a Python statement.
     """
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the statement with the given environment
-        
-        The returned value should be the same as how the python interpreter would evaluate the statement
+        """Evaluate the statement with the given environment.
+        T
+        he returned value should be the same as how the python interpreter would evaluate the statement
         """
 
         raise NotImplementedError
@@ -29,8 +31,8 @@ class Expr(Statement):
     """
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the expression with the given environment
-        
+        """Evaluate the expression with the given environment.
+
         The returned value should be the same as how the python interpreter would evaluate the expression
         """
 
@@ -52,10 +54,10 @@ class Num(Expr):
         self.n = number
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the expression with the given environment
-        
+        """Evaluate the expression with the given environment.
+
         The returned value should be the same as how the python interpreter would evaluate the expression
-        
+
         >>> Num(5).evaluate({})
         5
         """
@@ -83,10 +85,10 @@ class Str(Expr):
         self.s = string
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the expression with the given environment
-        
-        The returned value should be the same as how the python interpreter would evaluate the expression
-        
+        """Evaluate the expression with the given environment.
+
+        The returned value should be the same as how the python interpreter would evaluate the expression.
+
         >>> Str('hi').evaluate({})
         'hi'
         """
@@ -114,10 +116,10 @@ class Name(Expr):
         self.id = id_
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """See if the given id is in env, if it is, return associated value, else raise NameError
+        """See if the given id is in env, if it is, return associated value, else raise NameError.
 
-        The returned value should be the same as how the python interpreter would evaluate the expression
-        
+        The returned value should be the same as how the python interpreter would evaluate the expression.
+
         >>> Name('x').evaluate({'x': 5})
         5
         """
@@ -149,10 +151,10 @@ class List(Expr):
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate the given list literal
-        
+
         The returned value should be the same as how the python interpreter would evaluate the expression
-        
-        >>> List([1, 2, 3]).evaluate({})
+
+        >>> List([Num(1), Num(2), Num(3)]).evaluate({})
         [1, 2, 3]
         """
 
@@ -160,7 +162,7 @@ class List(Expr):
 
     def __getitem__(self, i: int) -> Any:
         """Get the item stored at a specific index in the list
-        
+
         >>> List([1, 2, 3])[1]
         2
         """
@@ -190,9 +192,9 @@ class Subscript(Expr):
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate a new indexing operation
-        
+
         The returned value should be the same as how the python interpreter would evaluate the expression
-        
+
         >>> Subscript(Name('x'), Num(1)).evaluate({'x': [1, 2, 3]})
         2
         """
@@ -221,9 +223,9 @@ class Bool(Expr):
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate the given bool literal
-        
+
         The returned value should be the same as how the python interpreter would evaluate the expression
-        
+
         >>> Bool(True).evaluate({})
         True
         """
@@ -233,7 +235,7 @@ class Bool(Expr):
     def __str__(self) -> str:
         """Return the string representation of this expression"""
 
-        return f"Bool(\"{self.b}\)"
+        return f"Bool({self.b})"
 
 
 class BoolOp(Expr):
@@ -255,7 +257,7 @@ class BoolOp(Expr):
 
     def __init__(self, op: str, left: Expr, right: Expr) -> None:
         """Initialize a new binary operation
-        
+
         Preconditions:
         - self.op in {'and', 'or', '<', '<=', '>', '>=', '==', '!='}
         """
@@ -268,7 +270,7 @@ class BoolOp(Expr):
         """Evaluate the given bool operation
 
         The returned value should be the same as how the python interpreter would evaluate the expression
-        
+
         >>> expr = BoolOp('<', Num(3), Num(5))
         >>> expr.evaluate({})
         True
@@ -293,7 +295,7 @@ class BoolOp(Expr):
             return left_val == right_val
         elif self.op == '!=':
             return left_val != right_val
-        else:   # should never get to this point because of precondition
+        else:  # should never get to this point because of precondition
             raise ValueError(f'Invalid operator {self.op}')
 
 
@@ -315,7 +317,7 @@ class BinOp(Expr):
 
     def __init__(self, left: Expr, op: str, right: Expr) -> None:
         """Initialize a new binary operation
-        
+
         Preconditions:
             - self.op in {'+', '*', '-', '/', '//', '%'}
         """
@@ -326,7 +328,7 @@ class BinOp(Expr):
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate the given binary operation
-        
+
         The returned value should be the same as how the python interpreter would evaluate the expression
 
         >>> expr = BinOp(Num(5), '+', Num(-3))
@@ -337,8 +339,8 @@ class BinOp(Expr):
         left_val = self.left.evaluate(env)
         right_val = self.right.evaluate(env)
 
-        if self.op == '+' and ((isinstance(left_val, str) and isinstance(right_val, str)) or
-                               (isinstance(left_val, int | float) and isinstance(right_val, int | float))):
+        if self.op == '+' and ((isinstance(left_val, str) and isinstance(right_val, str))
+                               or (isinstance(left_val, int | float) and isinstance(right_val, int | float))):
             return left_val + right_val
         elif self.op == '*' and not (isinstance(left_val, str) and isinstance(right_val, str)):
             return left_val * right_val
@@ -353,6 +355,7 @@ class BinOp(Expr):
         else:
             raise ValueError(f'Invalid operator {self.op}')
 
+
 class Assign(Expr):
     """Assign a variable to a target
 
@@ -361,8 +364,8 @@ class Assign(Expr):
         - value: the expression on the right-hand side of the equals sign
     """
 
-    target = Name | Subscript
-    value = Expr
+    target: Name | Subscript
+    value: Expr
 
     def __init__(self, target: Name | Subscript, value: Expr) -> None:
         """Initialize a new assignment statement"""
@@ -371,12 +374,10 @@ class Assign(Expr):
         self.value = value
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Create a new variable in the given environment
-        
+        """Create a new variable in the given environment.
         The returned value should be the same as how the python interpreter would evaluate the expression.
         Evaluates the right hand side and then updates env to store the corresponding value with the target.
-
-        >>> expr = Assign('x', Num(10))
+        >>> expr = Assign(Name('x'), Num(10))
         >>> env = {}
         >>> expr.evaluate(env)
         >>> env['x']
@@ -390,12 +391,11 @@ class Assign(Expr):
 
 class Print(Statement):
     """Takes in an Expression, evaluates it, and prints it
-    
     Instance Attributes:
         - arg: the expression to be evaluated and printed out
     """
 
-    arg = Expr
+    arg: Expr
 
     def __init__(self, arg: Expr) -> None:
         """Initialize a new print node"""
@@ -404,9 +404,10 @@ class Print(Statement):
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate the given argument and print it
-        
+
         The returned value should be the same as how the python interpreter would evaluate the expression.
-        
+
+        >>> env = {}
         >>> Print(Num(5)).evaluate(env)
         5
         """
@@ -415,7 +416,7 @@ class Print(Statement):
 
 class While(Statement):
     """While loop statement
-    
+
     Instance Attributes:
         - test: the conditional part of the while loop
         - body: the list of statements to evaluate when test is True
@@ -447,20 +448,21 @@ class While(Statement):
             for statement in self.body:
                 statement.evaluate(env)
 
+
 class If(Statement):
     """If statement
-    
+
     Instance Attributes:
         - test: the conditional part of the if statement
         - body: the list of statements to evaluate when test is True
-        - orelse: the list of statement to evaluate when test is False    
+        - orelse: the list of statement to evaluate when test is False
     """
 
     test: Expr
     body: list[Statement]
     orelse: list[Statement]
 
-    def __init__(self, test: Expr, body: list[Statement], orelse: list = []) -> None:
+    def __init__(self, test: Expr, body: list[Statement], orelse: list = None) -> None:
         """Initiate an If Node"""
 
         self.test = test
@@ -472,7 +474,7 @@ class If(Statement):
 
         The returned value should be the same as how the python interpreter would evaluate the expression.
 
-        >>> stmt = If(Bool(True), [Assign('x', Num(1))], [Assign('y', Num(0))])
+        >>> stmt = If(Bool(True), [Assign(Name('x'), Num(1))], [Assign(Name('y'), Num(0))])
         >>> env = {}
         >>> stmt.evaluate(env)
         >>> env
@@ -481,9 +483,10 @@ class If(Statement):
         if self.test.evaluate(env):
             for statement in self.body:
                 statement.evaluate(env)
-        else:
+        elif self.orelse is not None:
             for statement in self.orelse:
                 statement.evaluate(env)
+
 
 class Module:
     """Class representing python program with various statements
@@ -492,7 +495,7 @@ class Module:
         - body: a list of statements to be evaluated
     """
 
-    body = list[Statement]
+    body: list[Statement]
 
     def __init__(self, body: list[Statement]) -> None:
         """Initialize a module object"""
@@ -501,7 +504,7 @@ class Module:
 
     def evaluate(self) -> None:
         """Evaluate all the statements within the given module
-        
+
         >>> Module([Print(Num(5))]).evaluate()
         5
         """
@@ -509,3 +512,17 @@ class Module:
         env = {}
         for statement in self.body:
             statement.evaluate(env)
+
+
+if __name__ == '__main__':
+    import doctest
+
+    doctest.testmod(verbose=True)
+
+    import python_ta
+
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'allowed-io': ['Print.evaluate'],
+        'disable': ['abstract-method', 'syntax-error']
+    })
