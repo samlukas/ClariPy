@@ -207,10 +207,10 @@ def add_node_to_graph(graph: ig.Graph, parent_node: Optional[Tree], tree: Tree) 
         add_node_to_graph(graph, tree, child)
 
 
-def make_figure(graph: ig.Graph) -> go.Figure:
+def make_figure(graph: ig.Graph, module: classes.Module) -> go.Figure:
     """
     Turns the given graph into a plotly figure using the Reingold Tilford algorithm to generate the positions
-    of each node in the tree
+    of each node in the tree, the evaluated output is printed in the console.
 
     Preconditions:
         - graph is not empty
@@ -260,6 +260,7 @@ def make_figure(graph: ig.Graph) -> go.Figure:
                 showticklabels=False,
                 )
 
+    module.evaluate()
     fig.update_layout(title='Output Tree',
                       showlegend=False,
                       xaxis=axis,
@@ -314,7 +315,7 @@ def english_to_python(filename: str) -> None:
     program = claripy_parser.parse_module(filename)
     tree = format_module(program)
     graph = make_graph(tree)
-    fig = make_figure(graph)
+    fig = make_figure(graph, program)
     fig.show()
 
 

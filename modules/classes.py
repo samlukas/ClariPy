@@ -340,17 +340,17 @@ class BinOp(Expr):
         right_val = self.right.evaluate(env)
 
         if self.op == '+' and ((isinstance(left_val, str) and isinstance(right_val, str))
-                               or (isinstance(left_val, int | float) and isinstance(right_val, int | float))):
+                               or (isinstance(left_val, (int, float)) and isinstance(right_val, (int, float)))):
             return left_val + right_val
         elif self.op == '*' and not (isinstance(left_val, str) and isinstance(right_val, str)):
             return left_val * right_val
-        elif self.op == '-' and (isinstance(left_val, int | float) and isinstance(right_val, int | float)):
+        elif self.op == '-' and (isinstance(left_val, (int, float)) and isinstance(right_val, (int, float))):
             return left_val - right_val
-        elif self.op == '/' and (isinstance(left_val, int | float) and isinstance(right_val, int | float)):
+        elif self.op == '/' and (isinstance(left_val, (int, float)) and isinstance(right_val, (int, float))):
             return left_val / right_val
-        elif self.op == '//' and (isinstance(left_val, int | float) and isinstance(right_val, int | float)):
+        elif self.op == '//' and (isinstance(left_val, (int, float)) and isinstance(right_val, (int, float))):
             return left_val // right_val
-        elif self.op == '%' and (isinstance(left_val, int | float) and isinstance(right_val, int | float)):
+        elif self.op == '%' and (isinstance(left_val, (int, float)) and isinstance(right_val, (int, float))):
             return left_val % right_val
         else:
             raise ValueError(f'Invalid operator {self.op}')
@@ -502,7 +502,7 @@ class Module:
 
         self.body = body
 
-    def evaluate(self) -> None:
+    def evaluate(self) -> Any:
         """Evaluate all the statements within the given module
 
         >>> Module([Print(Num(5))]).evaluate()
