@@ -17,7 +17,7 @@ def pick_file() -> None:
         p = filedialog.askopenfilename(
             initialdir='/',
             title='Select file',
-            filetypes=(('python files', '*.py'), ('txt files', '*.txt'), ('all files', '*.*'))
+            filetypes=(('python files', '*.py'), ('txt files', '*.txt'))
         )
         if '.py' in p:
             visualizer.python_to_english(p)
