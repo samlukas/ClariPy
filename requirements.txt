@@ -1,2 +1,2 @@
 python-ta~=2.4.0
-igraph >= 0.9
+igraph>=0.9
