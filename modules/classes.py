@@ -12,21 +12,36 @@ Binary operations, and Assignment statements
 from typing import Any
 
 class Statement:
+    """An abstract class representing a Python statement.
+    """
+
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the statement with the given environment"""
+        """Evaluate the statement with the given environment
+        
+        The returned value should be the same as how the python interpreter would evaluate the statement
+        """
 
         raise NotImplementedError
 
 
 class Expr(Statement):
+    """An abstract class representing a Python expression.
+    """
+
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the statement with the given environment"""
+        """Evaluate the expression with the given environment
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression
+        """
 
         raise NotImplementedError
 
 
 class Num(Expr):
     """Numeric literal
+
+    Instance Attributes:
+        - n: the value of the literal
     """
 
     n: int | float
@@ -37,17 +52,27 @@ class Num(Expr):
         self.n = number
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the given numeric literal"""
+        """Evaluate the expression with the given environment
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression
+        
+        >>> Num(5).evaluate({})
+        5
+        """
 
         return self.n
 
     def __str__(self) -> str:
+        """Return the string representation of this expression"""
 
         return f"Num({self.n})"
 
 
 class Str(Expr):
     """String literal
+
+    Instance Attributes:
+        - s: the value of the literal
     """
 
     s: str
@@ -58,16 +83,27 @@ class Str(Expr):
         self.s = string
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the given string literal"""
+        """Evaluate the expression with the given environment
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression
+        
+        >>> Str('hi').evaluate({})
+        'hi'
+        """
 
         return self.s
 
     def __str__(self) -> str:
+        """Return the string representation of this expression"""
+
         return f"Str(\"{self.s}\")"
 
 
 class Name(Expr):
     """Variable expression
+
+    Instance Attributes:
+        - id: the variable name
     """
 
     id: str
@@ -78,7 +114,13 @@ class Name(Expr):
         self.id = id_
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """See if the given id is in env, if it is, return associated value, else raise NameError"""
+        """See if the given id is in env, if it is, return associated value, else raise NameError
+
+        The returned value should be the same as how the python interpreter would evaluate the expression
+        
+        >>> Name('x').evaluate({'x': 5})
+        5
+        """
 
         if self.id in env:
             return env[self.id]
@@ -86,27 +128,42 @@ class Name(Expr):
             raise NameError
 
     def __str__(self) -> str:
+        """Return the string representation of this expression"""
+
         return f"Name({self.id})"
 
 
 class List(Expr):
     """List literal
+
+    Instance Attributes:
+        - lst: the value of the literal
     """
 
     lst: list
 
     def __init__(self, lst: list) -> None:
-        """Initialize a new list litereal"""
+        """Initialize a new list literal"""
 
         self.lst = lst
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the given list literal"""
+        """Evaluate the given list literal
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression
+        
+        >>> List([1, 2, 3]).evaluate({})
+        [1, 2, 3]
+        """
 
         return [elem.evaluate(env) for elem in self.lst]
 
     def __getitem__(self, i: int) -> Any:
-        """Get the item stored at a specific index in the list"""
+        """Get the item stored at a specific index in the list
+        
+        >>> List([1, 2, 3])[1]
+        2
+        """
 
         if i >= len(self.lst):
             raise IndexError
@@ -116,6 +173,10 @@ class List(Expr):
 
 class Subscript(Expr):
     """List indexing
+
+    Instance Attributes:
+        - lst: the variable that corresponds to a list
+        - index: the index used for indexing operations
     """
 
     lst: Name
@@ -128,7 +189,13 @@ class Subscript(Expr):
         self.index = index
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate a new indexing operation"""
+        """Evaluate a new indexing operation
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression
+        
+        >>> Subscript(Name('x'), Num(1)).evaluate({'x': [1, 2, 3]})
+        2
+        """
 
         i = self.index.evaluate(env)
 
@@ -140,6 +207,9 @@ class Subscript(Expr):
 
 class Bool(Expr):
     """Boolean literal
+
+    Instance Attribute:
+        - b: the value of the literal
     """
 
     b: bool
@@ -150,16 +220,33 @@ class Bool(Expr):
         self.b = b
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the given bool literal"""
+        """Evaluate the given bool literal
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression
+        
+        >>> Bool(True).evaluate({})
+        True
+        """
 
         return self.b
 
     def __str__(self) -> str:
+        """Return the string representation of this expression"""
+
         return f"Bool(\"{self.b}\)"
 
 
 class BoolOp(Expr):
     """Represents a bool operation
+
+    Instance Attributes:
+        - op: the bool/comparison operator
+        - left: the left operand
+        - right: the right operand
+
+    Representation Invariants:
+        - self.op in {'and', 'or', '<', '<=', '>', '>=', '==', '!='}
+
     """
 
     op: str
@@ -167,14 +254,25 @@ class BoolOp(Expr):
     left: Expr
 
     def __init__(self, op: str, left: Expr, right: Expr) -> None:
-        """Initialize a new binary operation"""
+        """Initialize a new binary operation
+        
+        Preconditions:
+        - self.op in {'and', 'or', '<', '<=', '>', '>=', '==', '!='}
+        """
 
         self.op = op
         self.right = right
         self.left = left
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the given bool operation"""
+        """Evaluate the given bool operation
+
+        The returned value should be the same as how the python interpreter would evaluate the expression
+        
+        >>> expr = BoolOp('<', Num(3), Num(5))
+        >>> expr.evaluate({})
+        True
+        """
 
         right_val = self.right.evaluate(env)
         left_val = self.left.evaluate(env)
@@ -195,12 +293,20 @@ class BoolOp(Expr):
             return left_val == right_val
         elif self.op == '!=':
             return left_val != right_val
-        else:
+        else:   # should never get to this point because of precondition
             raise ValueError(f'Invalid operator {self.op}')
 
 
 class BinOp(Expr):
     """Represents a binary operation
+
+    Instance Attributes:
+        - left: the left operand
+        - op: the arithmetic operator
+        - right: the right operand
+
+    Representation Invariants:
+        - self.op in {'+', '*', '-', '/', '//', '%'}
     """
 
     left: Expr
@@ -208,14 +314,25 @@ class BinOp(Expr):
     right: Expr
 
     def __init__(self, left: Expr, op: str, right: Expr) -> None:
-        """Initialize a new binary operation"""
+        """Initialize a new binary operation
+        
+        Preconditions:
+            - self.op in {'+', '*', '-', '/', '//', '%'}
+        """
 
         self.left = left
         self.op = op
         self.right = right
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the given binary operation"""
+        """Evaluate the given binary operation
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression
+
+        >>> expr = BinOp(Num(5), '+', Num(-3))
+        >>> expr.evaluate({})
+        2
+        """
 
         left_val = self.left.evaluate(env)
         right_val = self.right.evaluate(env)
@@ -238,6 +355,10 @@ class BinOp(Expr):
 
 class Assign(Expr):
     """Assign a variable to a target
+
+    Instance Attributes:
+        - target: the variable name on the left-hand side of the equals sign
+        - value: the expression on the right-hand side of the equals sign
     """
 
     target = Name | Subscript
@@ -250,7 +371,17 @@ class Assign(Expr):
         self.value = value
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Create a new variable in the given environment"""
+        """Create a new variable in the given environment
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression.
+        Evaluates the right hand side and then updates env to store the corresponding value with the target.
+
+        >>> expr = Assign('x', Num(10))
+        >>> env = {}
+        >>> expr.evaluate(env)
+        >>> env['x']
+        10
+        """
         if isinstance(self.target, Name):
             env[self.target.id] = self.value.evaluate(env)
         else:
@@ -258,39 +389,72 @@ class Assign(Expr):
 
 
 class Print(Statement):
-    """Takes in an Expression, evaluates it, and prints it"""
+    """Takes in an Expression, evaluates it, and prints it
+    
+    Instance Attributes:
+        - arg: the expression to be evaluated and printed out
+    """
 
     arg = Expr
 
     def __init__(self, arg: Expr) -> None:
         """Initialize a new print node"""
+
         self.arg = arg
 
     def evaluate(self, env: dict[str: Any]) -> Any:
-        """Evaluate the given argument and print it"""
+        """Evaluate the given argument and print it
+        
+        The returned value should be the same as how the python interpreter would evaluate the expression.
+        
+        >>> Print(Num(5)).evaluate(env)
+        5
+        """
         print(self.arg.evaluate(env))
 
 
 class While(Statement):
-    """While loop statement"""
+    """While loop statement
+    
+    Instance Attributes:
+        - test: the conditional part of the while loop
+        - body: the list of statements to evaluate when test is True
+    """
 
     test: Expr
     body: list[Statement]
 
     def __init__(self, test: Expr, body: list[Statement]) -> None:
         """Initiate a While Node"""
+
         self.test = test
         self.body = body
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evalute the While node
+
+        The returned value should be the same as how the python interpreter would evaluate the expression.
+
+        >>> env = {'x': 0}
+        >>> body = [Assign(Name('x'), BinOp(Name('x'), '+', Num(1)))]
+        >>> test = BoolOp('<', Name('x'), Num(5))
+        >>> loop = While(test, body).evaluate(env)
+        >>> Name('x').evaluate(env)
+        5
         """
+
         while self.test.evaluate(env):
             for statement in self.body:
                 statement.evaluate(env)
 
 class If(Statement):
-    """If statement"""
+    """If statement
+    
+    Instance Attributes:
+        - test: the conditional part of the if statement
+        - body: the list of statements to evaluate when test is True
+        - orelse: the list of statement to evaluate when test is False    
+    """
 
     test: Expr
     body: list[Statement]
@@ -298,12 +462,21 @@ class If(Statement):
 
     def __init__(self, test: Expr, body: list[Statement], orelse: list = []) -> None:
         """Initiate an If Node"""
+
         self.test = test
         self.body = body
         self.orelse = orelse
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evalute the If node
+
+        The returned value should be the same as how the python interpreter would evaluate the expression.
+
+        >>> stmt = If(Bool(True), [Assign('x', Num(1))], [Assign('y', Num(0))])
+        >>> env = {}
+        >>> stmt.evaluate(env)
+        >>> env
+        {'x': 1}
         """
         if self.test.evaluate(env):
             for statement in self.body:
@@ -314,6 +487,9 @@ class If(Statement):
 
 class Module:
     """Class representing python program with various statements
+
+    Instance Attributes:
+        - body: a list of statements to be evaluated
     """
 
     body = list[Statement]
@@ -324,7 +500,11 @@ class Module:
         self.body = body
 
     def evaluate(self) -> None:
-        """Evaluate all the statements within the given module"""
+        """Evaluate all the statements within the given module
+        
+        >>> Module([Print(Num(5))]).evaluate()
+        5
+        """
 
         env = {}
         for statement in self.body:

@@ -186,7 +186,7 @@ def matching_parenthesis(tokens: list, index: int,  p_type: str = '(') -> int:
     raise SyntaxError  # Unmatched parenthesis
 
 
-def parse_if_statement(tokens: list, offset: int) -> (classes.If, int):
+def parse_if_statement(tokens: list, offset: int) -> tuple[classes.If, int]:
     """
     Return the If statement at the beginning of the list of tokens and index of the token after it
     """
@@ -219,7 +219,7 @@ def parse_if_statement(tokens: list, offset: int) -> (classes.If, int):
             raise SyntaxError
 
 
-def parse_list(tokens: list, offset: int) -> (classes.List, int):
+def parse_list(tokens: list, offset: int) -> tuple[classes.List, int]:
     """
     Return the AST representation of a list and the index of the token after it
     """
