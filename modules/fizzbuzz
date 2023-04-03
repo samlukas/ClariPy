@@ -1,0 +1,17 @@
+Define i as 1;
+
+While (i is less than or equal to 100) {
+    If (i % 3 is equal to 0 and i % 5 is equal to 0) {
+        Print "FIZZBUZZ";
+    }
+    Else If (i % 3 is equal to 0) {
+        Print "FIZZ";
+    }
+    Else If (i % 5 is equal to 0) {
+        Print "BUZZ";
+    }
+    Else {
+        Print i;
+    }
+    Define i as i + 1;
+}

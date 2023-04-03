@@ -8,24 +8,34 @@ to convert between pseudo code and python code
 Also implemented is code that allows us to convert these tokens into their corresponding AST
 nodes
 """
-
 import re
 import classes
+
 
 """
 TOKENIZER 
 """
 
-token_format = re.compile(r"[-+]?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),\]\[]|=+")
+token_format = re.compile(r"[-+]?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),%\]\[]|=+")
 string_format = re.compile(r"[\"\'][ -~]+[\"\']")
 variable_format = re.compile(r"\w+")
 int_format = re.compile(r"[-+]?[0-9]+")
 float_format = re.compile(r"[-+]?[0-9]*\.[0-9]+")
-KEYWORDS = {'Define', 'If', 'Else', 'as', 'and', 'or'}
-PRECEDENCES = {'*': 1, '/': 1, '+': 0, '-': 0, '>=': -1, '>': -1, '<=': -1, '<': -1, '==': -1, '!=': -1, 'and': -2,
-               'or': -2}
-A_OPERATORS = {'*', '/', '+', '-'}
+KEYWORDS = {'Define', 'While', 'If', 'Else', 'as', 'and', 'or', 'Print'}
+PRECEDENCES = {'*': 1, '/': 1, '%': 1, '+': 0, '-': 0, '>=': -1, '>': -1, '<=': -1, '<': -1, '==': -1, '!=': -1,
+               'and': -2, 'or': -2}
+A_OPERATORS = {'*', '/', '+', '-', '%'}
 B_OPERATORS = {'and', 'or', '<', '<=', '>', '>=', '!=', '=='}
+
+
+def parse_module(file_name: str) -> classes.Module:
+    """Return the AST conversion of the given module
+    """
+
+    tokens = lexer(tokenize(file_name))
+    statements = parse_statements(tokens)
+
+    return classes.Module(statements)
 
 
 def tokenize(file_name: str) -> list[str]:
@@ -36,10 +46,10 @@ def tokenize(file_name: str) -> list[str]:
 
     program = program.replace("is equal to", "==")
     program = program.replace("is not equal to", "!=")
-    program = program.replace("is greater than", ">")
-    program = program.replace("is less than", "<")
     program = program.replace("is greater than or equal to", ">=")
     program = program.replace("is less than or equal to", "<=")
+    program = program.replace("is greater than", ">")
+    program = program.replace("is less than", "<")
 
     return token_format.findall(program)
 
@@ -85,7 +95,7 @@ def expression_to_ast(tokens: list) -> classes.BinOp | classes.BoolOp:
 def shunting_yard(tokens: list) -> list:
     """Return the tokens ordered in Reverse Polish Notation
     """
-    operators = '+-*/>=<==!=()andor'  # While technically parentheses are not operators, this simplifies the checks
+    operators = '+-*/%>=<==!=()andor'  # While technically parentheses are not operators, this simplifies the checks
 
     operator_stack = []
     output = []
@@ -141,7 +151,7 @@ def polish_to_ast(polish: list) -> classes.BinOp | classes.BoolOp:
         else:
             val1, val2 = stack.pop(), stack.pop()
             if item in A_OPERATORS:
-                stack.append(classes.BinOp(val1, item, val2))
+                stack.append(classes.BinOp(val2, item, val1))
             elif item in B_OPERATORS:
                 stack.append(classes.BoolOp(item, val2, val1))
 
@@ -176,29 +186,126 @@ def matching_parenthesis(tokens: list, index: int,  p_type: str = '(') -> int:
     raise SyntaxError  # Unmatched parenthesis
 
 
+def parse_if_statement(tokens: list, offset: int) -> (classes.If, int):
+    """
+    Return the If statement at the beginning of the list of tokens and index of the token after it
+    """
+    i = 0
+
+    while i < len(tokens):
+        i += 1
+        if tokens[i] == '(':
+            end = matching_parenthesis(tokens, i)
+            condition = expression_to_ast(tokens[i + 1:end])
+            i = end + 1
+            if tokens[i] == '{':
+                end = matching_parenthesis(tokens, i, '{')
+                body = parse_statements(tokens[i + 1:end])
+                i = end + 1
+                if i < len(tokens) and tokens[i] == "Else":
+                    i += 1
+                    if tokens[i] == '{':
+                        end = matching_parenthesis(tokens, i, '{')
+                        orelse = parse_statements(tokens[i + 1:end])
+                        return (classes.If(condition, body, orelse), end + 1 + offset)
+                    else:
+                        orelse, i = parse_if_statement(tokens[i:], i)
+                        return (classes.If(condition, body, [orelse]), i + offset)
+                else:
+                    return (classes.If(condition, body), i + offset)
+            else:
+                raise SyntaxError
+        else:
+            raise SyntaxError
+
+
+def parse_list(tokens: list, offset: int) -> (classes.List, int):
+    """
+    Return the AST representation of a list and the index of the token after it
+    """
+    list_so_far = []
+    end = matching_parenthesis(tokens, 0, '[')
+    i = 1
+
+    expression = []
+
+    while i <= end:
+        if tokens[i] != ',' and tokens[i] != ']':
+            if tokens[i] == '[':
+                element, i = parse_list(tokens[i:], i)
+                expression.append(element)
+            else:
+                expression.append(tokens[i])
+                i += 1
+        else:
+            list_so_far.append(expression_to_ast(expression))
+            expression = []
+            i += 1
+
+    return classes.List(list_so_far), offset + (end + 1)
+
+
 def parse_statements(tokens: list) -> list:
     """
     Parse the statments within the given list of tokens.
     Convert the statements into either classes.BoolOp or classes.BinOp
     """
 
-    structure = []
+    statements = []
     paren = {'{', '(', '['}
     i = 0
 
     while i < len(tokens):
-        if tokens[i] in paren:
-            end = matching_parenthesis(tokens, i, tokens[i])
-            rpn = shunting_yard(tokens[i + 1: end])
-            structure.append(polish_to_ast(rpn))
+        if tokens[i] == "While":
+            i += 1
+            if tokens[i] == '(':
+                end = matching_parenthesis(tokens, i)
+                condition = expression_to_ast(tokens[i + 1:end])
+                i = end + 1
+                if tokens[i] == '{':
+                    end = matching_parenthesis(tokens, i, '{')
+                    body = parse_statements(tokens[i + 1:end])
+                    statements.append(classes.While(condition, body))
+                    i = end + 1
+                else:
+                    raise SyntaxError
+            else:
+                raise SyntaxError
 
-            i = end + 1
-            
-        else:
-            structure.append(tokens[i])
+        elif tokens[i] == "If":
+            statement, i = parse_if_statement(tokens[i:], i)
+            statements.append(statement)
+
+        elif tokens[i] == 'Define':
+            i += 1
+            if isinstance(tokens[i], classes.Name) or isinstance(tokens[i], classes.Subscript):
+                target = tokens[i]
+                i += 1
+                if tokens[i] == 'as':
+                    i += 1
+                    if tokens[i] == '[':
+                        expression, i = parse_list(tokens[i:], i)
+                        if tokens[i] != ';':
+                            raise SyntaxError
+                        i += 1
+                    else:
+                        start = i
+                        while tokens[i] != ';':
+                            i += 1
+                        expression = expression_to_ast(tokens[start:i])
+                        i += 1
+                    statements.append(classes.Assign(target, expression))
+                else:
+                    raise SyntaxError
+            else:
+                raise SyntaxError
+
+        elif tokens[i] == 'Print':
+            i += 1
+            start = i
+            while tokens[i] != ';':
+                i += 1
+            statements.append(classes.Print(expression_to_ast(tokens[start:i])))
             i += 1
 
-
-    return structure
-
-    
+    return statements

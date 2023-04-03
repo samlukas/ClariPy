@@ -1,0 +1,18 @@
+Define lst as [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+
+Define i as 0;
+
+While (i is less than 15) {
+    If (lst[i] % 3 is equal to 0 and lst[i] % 5 is equal to 0) {
+        Define lst[i] as "FIZZBUZZ";
+    }
+    Else If (lst[i] % 3 is equal to 0) {
+        Define lst[i] as "FIZZ";
+    }
+    Else If (lst[i] % 5 is equal to 0) {
+        Define lst[i] as "BUZZ";
+    }
+    Define i as i + 1;
+}
+
+Print lst;

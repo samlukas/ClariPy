@@ -2,11 +2,11 @@
 CSC111 Winter 2023 Project: ClariPy
 
 This module contains various methods that allow us to represent various AST nodes
-as strings. 
+as strings.
 
 It breaks down various componenets of different expressions in order to represent an
 entire statement as a string. We format the resulting string using semicolons
-and curly brackets so that we can more easily parse these strings back into python 
+and curly brackets so that we can more easily parse these strings back into python
 code.
 """
 
@@ -258,7 +258,7 @@ def str_subscript(self) -> str:
     """Return the string representation of a ast.Subscript node
     """
 
-    return f'at index {self.slice} of {self.value.__str__()}'
+    return f'at index {self.slice} [{self.value.__str__()}]'
 
 
 ast.Subscript.__str__ = str_subscript

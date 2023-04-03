@@ -66,6 +66,29 @@ class Str(Expr):
         return f"Str(\"{self.s}\")"
 
 
+class Name(Expr):
+    """Variable expression
+    """
+
+    id: str
+
+    def __init__(self, id_: str) -> None:
+        """Initialize a new variable expression"""
+
+        self.id = id_
+
+    def evaluate(self, env: dict[str: Any]) -> Any:
+        """See if the given id is in env, if it is, return associated value, else raise NameError"""
+
+        if self.id in env:
+            return env[self.id]
+        else:
+            raise NameError
+
+    def __str__(self) -> str:
+        return f"Name({self.id})"
+
+
 class List(Expr):
     """List literal
     """
@@ -95,10 +118,10 @@ class Subscript(Expr):
     """List indexing
     """
 
-    lst: Expr
+    lst: Name
     index: Expr
 
-    def __init__(self, lst: Expr, index: Expr) -> None:
+    def __init__(self, lst: Name, index: Expr) -> None:
         """Initialize a new indexing operation"""
 
         self.lst = lst
@@ -112,7 +135,7 @@ class Subscript(Expr):
         if i >= len(self.lst.evaluate(env)):
             raise IndexError
         else:
-            return self.lst.evaluate(env)[i]
+            return self.lst.evaluate(env)[i].evaluate(env)
 
 
 class Bool(Expr):
@@ -213,37 +236,14 @@ class BinOp(Expr):
         else:
             raise ValueError(f'Invalid operator {self.op}')
 
-class Name(Expr):
-    """Variable expression
-    """
-
-    id: str
-
-    def __init__(self, id_: str) -> None:
-        """Initialize a new variable expression"""
-
-        self.id = id_
-
-    def evaluate(self, env: dict[str: Any]) -> Any:
-        """See if the given id is in env, if it is, return associated value, else raise NameError"""
-
-        if self.id in env:
-            return env[self.id]
-        else:
-            raise NameError
-
-    def __str__(self) -> str:
-        return f"Name({self.id})"
-
-
 class Assign(Expr):
     """Assign a variable to a target
     """
 
-    target = str
+    target = Name | Subscript
     value = Expr
 
-    def __init__(self, target: str, value: Expr) -> None:
+    def __init__(self, target: Name | Subscript, value: Expr) -> None:
         """Initialize a new assignment statement"""
 
         self.target = target
@@ -251,8 +251,10 @@ class Assign(Expr):
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Create a new variable in the given environment"""
-
-        env[self.target] = self.value.evaluate(env)
+        if isinstance(self.target, Name):
+            env[self.target.id] = self.value.evaluate(env)
+        else:
+            env[self.target.lst.id][self.target.index.evaluate(env)] = self.value.evaluate(env)
 
 
 class Print(Statement):
@@ -267,6 +269,48 @@ class Print(Statement):
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate the given argument and print it"""
         print(self.arg.evaluate(env))
+
+
+class While(Statement):
+    """While loop statement"""
+
+    test: Expr
+    body: list[Statement]
+
+    def __init__(self, test: Expr, body: list[Statement]) -> None:
+        """Initiate a While Node"""
+        self.test = test
+        self.body = body
+
+    def evaluate(self, env: dict[str: Any]) -> Any:
+        """Evalute the While node
+        """
+        while self.test.evaluate(env):
+            for statement in self.body:
+                statement.evaluate(env)
+
+class If(Statement):
+    """If statement"""
+
+    test: Expr
+    body: list[Statement]
+    orelse: list[Statement]
+
+    def __init__(self, test: Expr, body: list[Statement], orelse: list = []) -> None:
+        """Initiate an If Node"""
+        self.test = test
+        self.body = body
+        self.orelse = orelse
+
+    def evaluate(self, env: dict[str: Any]) -> Any:
+        """Evalute the If node
+        """
+        if self.test.evaluate(env):
+            for statement in self.body:
+                statement.evaluate(env)
+        else:
+            for statement in self.orelse:
+                statement.evaluate(env)
 
 class Module:
     """Class representing python program with various statements
