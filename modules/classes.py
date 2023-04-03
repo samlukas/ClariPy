@@ -103,7 +103,7 @@ class List(Expr):
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate the given list literal"""
 
-        return self.lst
+        return [elem.evaluate(env) for elem in self.lst]
 
     def __getitem__(self, i: int) -> Any:
         """Get the item stored at a specific index in the list"""
@@ -135,7 +135,7 @@ class Subscript(Expr):
         if i >= len(self.lst.evaluate(env)):
             raise IndexError
         else:
-            return self.lst.evaluate(env)[i].evaluate(env)
+            return self.lst.evaluate(env)[i]
 
 
 class Bool(Expr):
@@ -254,7 +254,7 @@ class Assign(Expr):
         if isinstance(self.target, Name):
             env[self.target.id] = self.value.evaluate(env)
         else:
-            env[self.target.lst.id][self.target.index.evaluate(env)] = self.value
+            env[self.target.lst.id][self.target.index.evaluate(env)] = self.value.evaluate(env)
 
 
 class Print(Statement):
