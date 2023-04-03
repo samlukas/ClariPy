@@ -1,0 +1,12 @@
+Define sum1 as 0;
+
+Define i as 1;
+
+While (i is less than or equal to 100){
+    Define sum1 as sum1 + i;
+    Define i as i + 1;
+}
+
+Define sum2 as (100 + 1) * (100 / 2);
+
+Print sum1 == sum2;

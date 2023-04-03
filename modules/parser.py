@@ -16,11 +16,11 @@ import classes
 TOKENIZER 
 """
 
-token_format = re.compile(r"[-+]?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),%\]\[]|=+")
+token_format = re.compile(r"-?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),%\]\[]|=+")
 string_format = re.compile(r"[\"\'][ -~]+[\"\']")
 variable_format = re.compile(r"\w+")
-int_format = re.compile(r"[-+]?[0-9]+")
-float_format = re.compile(r"[-+]?[0-9]*\.[0-9]+")
+int_format = re.compile(r"-?[0-9]+")
+float_format = re.compile(r"-?[0-9]*\.[0-9]+")
 KEYWORDS = {'Define', 'While', 'If', 'Else', 'as', 'and', 'or', 'Print'}
 PRECEDENCES = {'*': 1, '/': 1, '%': 1, '+': 0, '-': 0, '>=': -1, '>': -1, '<=': -1, '<': -1, '==': -1, '!=': -1,
                'and': -2, 'or': -2}
