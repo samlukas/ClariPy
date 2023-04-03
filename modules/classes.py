@@ -9,6 +9,7 @@ commonly found in python program.
 This includes classes such as Statements, Expresisons, Num literals, String literals,
 Binary operations, and Assignment statements
 """
+from __future__ import annotations
 
 from typing import Any
 
@@ -19,8 +20,7 @@ class Statement:
 
     def evaluate(self, env: dict[str: Any]) -> Any:
         """Evaluate the statement with the given environment.
-        T
-        he returned value should be the same as how the python interpreter would evaluate the statement
+        The returned value should be the same as how the python interpreter would evaluate the statement
         """
 
         raise NotImplementedError
