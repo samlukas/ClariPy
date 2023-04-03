@@ -371,8 +371,21 @@ def str_return(self) -> str:
 ast.Return.__str__ = str_return
 
 
+def str_call(self) -> str:
+    """Return the string representation of the ast.Call node
+    """
+    str_so_far = 'Print '
+
+    for element in self.args:
+        str_so_far += element.__str__()
+    return str_so_far
+
+
+ast.Call.__str__ = str_call
+
+
 if __name__ == '__main__':
-    with open("test_program.py") as f:
+    with open("sums_py_to_lang.py") as f:
         program = f.read()
 
     tree = ast.parse(program)
