@@ -34,7 +34,7 @@ def parse_module(file_name: str) -> classes.Module:
 def tokenize(file_name: str) -> list[str]:
     """Return the tokenized version of the input program
     """
-    TOKEN_FORMAT = re.compile(r"-?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),%\]\[]|=+")
+    token_format = re.compile(r"-?[0-9]*\.?[0-9]+|\w+|[\"\'][ -~]+[\"\']|!=|[<>]=|[<>+\-*/;{}(),%\]\[]|=+")
 
     with open(file_name) as f:
         program = f.read()
@@ -46,29 +46,29 @@ def tokenize(file_name: str) -> list[str]:
     program = program.replace("is greater than", ">")
     program = program.replace("is less than", "<")
 
-    return TOKEN_FORMAT.findall(program)
+    return token_format.findall(program)
 
 
 def lexer(tokens: list) -> list:
     """Return the list of tokens, replacing tokens of leaf nodes with appropriate nodes
     """
-    STRING_FORMAT = re.compile(r"[\"\'][ -~]+[\"\']")
-    VARIABLE_FORMAT = re.compile(r"\w+")
-    INT_FORMAT = re.compile(r"-?[0-9]+")
-    FLOAT_FORMAT = re.compile(r"-?[0-9]*\.[0-9]+")
+    string_format = re.compile(r"[\"\'][ -~]+[\"\']")
+    variable_format = re.compile(r"\w+")
+    int_format = re.compile(r"-?[0-9]+")
+    float_format = re.compile(r"-?[0-9]*\.[0-9]+")
     tokens_so_far = []
     i = 0
 
     while i < len(tokens):
         if tokens[i] in KEYWORDS:
             tokens_so_far.append(tokens[i])
-        elif re.fullmatch(FLOAT_FORMAT, tokens[i]):
+        elif re.fullmatch(float_format, tokens[i]):
             tokens_so_far.append(classes.Num(float(tokens[i])))
-        elif re.fullmatch(INT_FORMAT, tokens[i]):
+        elif re.fullmatch(int_format, tokens[i]):
             tokens_so_far.append(classes.Num(int(tokens[i])))
-        elif re.fullmatch(STRING_FORMAT, tokens[i]):
+        elif re.fullmatch(string_format, tokens[i]):
             tokens_so_far.append(classes.Str(tokens[i][1:-1]))
-        elif re.fullmatch(VARIABLE_FORMAT, tokens[i]):
+        elif re.fullmatch(variable_format, tokens[i]):
             if i < len(tokens) - 1 and tokens[i + 1] == '[':
                 end = matching_parenthesis(tokens, i + 1, '[')
                 inner = lexer(tokens[i + 2:end])
@@ -85,7 +85,7 @@ def lexer(tokens: list) -> list:
     return tokens_so_far
 
 
-def expression_to_ast(tokens: list) -> classes.BinOp | classes.BoolOp:
+def expression_to_ast(tokens: list) -> classes.Expr:
     """Return BinOp/BoolOp AST representation of the given expression
     """
     return polish_to_ast(shunting_yard(tokens))
